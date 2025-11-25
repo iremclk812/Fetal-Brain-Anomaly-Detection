@@ -16,19 +16,29 @@ from utils_get_embeddings import (
     get_train_val_embeddings,
 )
 
-with open('config.json', 'r') as file:
+# Get script directory for relative paths
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(SCRIPT_DIR, 'config.json')
+
+with open(CONFIG_PATH, 'r') as file:
     config = json.load(file)
 
-PATH_FETALCLIP_WEIGHT = config['paths']['path_fetalclip_weight']
-PATH_FETALCLIP_CONFIG = config['paths']['path_fetalclip_config']
+# Convert relative paths to absolute paths based on script directory
+def resolve_path(path):
+    if not os.path.isabs(path):
+        return os.path.normpath(os.path.join(SCRIPT_DIR, path))
+    return path
+
+PATH_FETALCLIP_WEIGHT = resolve_path(config['paths']['path_fetalclip_weight'])
+PATH_FETALCLIP_CONFIG = resolve_path(config['paths']['path_fetalclip_config'])
 ARCH_NAME = 'FetalCLIP'
 
 LIST_N_PATIENTS = [
-    '4',
-    '8',
-    '16',
-    '32',
-    '64',
+    '4',  # Test için sadece 4 hasta
+    # '8',
+    # '16',
+    # '32',
+    # '64',
     # '128',
 ]
 
@@ -49,7 +59,11 @@ def get_model_and_preprocess():
 def main(N_PATIENTS):
     model_name, encoder, preprocess_img = get_model_and_preprocess()
     encoder.eval()
-    encoder = encoder.cuda()
+    
+    # Use GPU if available, otherwise CPU
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    encoder = encoder.to(device)
 
     csv_filepath = os.path.join(DIR_SAVE_CSV_EXP, f'{model_name}_{N_PATIENTS}.csv')
 
@@ -58,8 +72,8 @@ def main(N_PATIENTS):
         DIR_TEST, LIST_TEST_PID, preprocess_img, dict_test_embeddings,
     )
 
-    # Loop through support samples
-    for i in range(len(DICT_LIST_PID[N_PATIENTS])):
+    # Loop through support samples - Test için sadece 1 support set
+    for i in range(min(1, len(DICT_LIST_PID[N_PATIENTS]))):
         dict_train_embeddings, dict_val_embeddings = get_train_val_embeddings(
             encoder, DIR_TRAIN, DIR_VAL, DICT_LIST_PID[N_PATIENTS][i],
             preprocess_img,
@@ -75,8 +89,8 @@ def main(N_PATIENTS):
         print("len(val_ds)", len(ds_val))
         print("len(test_ds)", len(ds_test))
 
-        # Loop through multiple runs
-        for j in range(N_RUNS_PER_EXP):
+        # Loop through multiple runs - Test için sadece 1 run
+        for j in range(min(1, N_RUNS_PER_EXP)):
             if os.path.exists(csv_filepath):
                 df_logs = pd.read_csv(csv_filepath)
                 if f'{i}_{j}' in [f"{int(r['support_set'])}_{int(r['run'])}" for _, r in df_logs.iterrows()]:
@@ -96,9 +110,13 @@ def main(N_PATIENTS):
 
             checkpoint = pl.callbacks.ModelCheckpoint(monitor="val_loss", mode="min", dirpath=f"fetalclip/{N_PATIENTS}_{i}_{j}")
 
+            # Use GPU if available, otherwise CPU
+            accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
+            devices = 1 if torch.cuda.is_available() else 'auto'
+            
             trainer = pl.Trainer(
-                devices=1, accelerator='gpu', max_epochs=MAX_EPOCHS, callbacks=[checkpoint],
-                check_val_every_n_epoch=CHECK_VAL_EVERY_N_EPOCH,
+                devices=devices, accelerator=accelerator, max_epochs=5, callbacks=[checkpoint],  # Test için 5 epoch
+                check_val_every_n_epoch=1,  # Her epoch validate et
             )
 
             trainer.fit(model, train_loader, val_loader)

@@ -15,11 +15,11 @@ from pytorch_grad_cam import GradCAM, ScoreCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
-ROOT_DIR = '<path_to_fetal_planes_db_data>/Images'
-PATH_CSV = '<path_to_fetal_planes_db_data>/FETAL_PLANES_DB_data.csv'
-PATH_FETALCLIP_WEIGHT = "../FetalCLIP_weights.pt"
-PATH_FETALCLIP_CONFIG = "../FetalCLIP_config.json"
-PATH_TEXT_PROMPTS = "test_brain_subplanes_prompts.json"
+ROOT_DIR = "C:\\Users\\iremc\\Desktop\\Fetal-Brain-Anomaly-Detection\\3904280\\FETAL_PLANES_ZENODO\\Images"
+PATH_CSV = "C:\\Users\\iremc\\Desktop\\Fetal-Brain-Anomaly-Detection\\3904280\\FETAL_PLANES_ZENODO\\FETAL_PLANES_DB_data.csv"
+PATH_FETALCLIP_WEIGHT = "C:\\Users\\iremc\\Desktop\\Fetal-Brain-Anomaly-Detection\\FetalCLIP_weights.pt"
+PATH_FETALCLIP_CONFIG = "C:\\Users\\iremc\\Desktop\\Fetal-Brain-Anomaly-Detection\\FetalCLIP_config.json"
+PATH_TEXT_PROMPTS = "C:\\Users\\iremc\\Desktop\\Fetal-Brain-Anomaly-Detection\\cam\\test_brain_subplanes_prompts.json"
 SAVE_DIR = 'CAM_brain_subplanes'
 SAVE_DIR_ORI_IMG = os.path.join(SAVE_DIR, 'Image')
 
@@ -161,7 +161,7 @@ def reshape_transform(tensor, height=16, width=16):
     result = result.transpose(2, 3).transpose(1, 2)
     return result
 
-cam = ScoreCAM(
+cam = GradCAM(
     model=model_wrapper, target_layers=target_layers,
     reshape_transform=reshape_transform
 )

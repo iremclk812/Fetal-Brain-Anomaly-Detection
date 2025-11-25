@@ -1,0 +1,40 @@
+# REM 1. Ortamı aktif et
+conda activate fetalclip
+
+REM 2. Proje klasörüne git
+cd "C:\Users\iremc\Desktop\Fetal-Brain-Anomaly-Detection"
+
+REM 3. PyTorch ve diğer paketleri yükle
+conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia -y
+pip install -r requirements.txt
+
+REM 4. Kurulumu doğrula
+python -c "import numpy, torch, sklearn; print('NumPy:', numpy.__version__); print('PyTorch:', torch.__version__); print('Scikit-learn:', sklearn.__version__)"numpy==1.* (Manually installed numpy-2.3.5 as a pre-built wheel)
+webdataset>=0.2.5
+regex
+ftfy
+tqdm
+pandas
+braceexpand
+huggingface_hub==0.25.0
+transformers[sentencepiece]==4.35.2
+timm==0.9.7
+fsspec
+
+# additional
+albumentations
+pytorch_lightning==2.3.1
+opencv_python==4.10.0.84
+scikit_learn==1.5.1
+segmentation_models_pytorch==0.3.4
+pydicom
+matplotlib
+torchmetrics==1.4.0.*
+open-clip-torch==2.26.1
+openai==1.51.2
+openai-clip==1.0.1
+grad-cam==1.5.4
+jupyter
+jupyterlab
+tensorboard
+wandb
