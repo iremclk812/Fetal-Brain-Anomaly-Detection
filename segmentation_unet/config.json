@@ -1,0 +1,49 @@
+{
+    "description": "U-Net segmentation for fetal head circumference with FetalCLIP encoder",
+    "paths": {
+        "hc18_dir": "C:/Users/iremc/Desktop/Fetal-Brain-Anomaly-Detection/1327317",
+        "hc18_train_dir": "C:/Users/iremc/Desktop/Fetal-Brain-Anomaly-Detection/1327317/training_set/training_set",
+        "hc18_test_dir": "C:/Users/iremc/Desktop/Fetal-Brain-Anomaly-Detection/1327317/test_set/test_set",
+        "annotation_csv": "C:/Users/iremc/Desktop/Fetal-Brain-Anomaly-Detection/1327317/training_set_pixel_size_and_HC.csv",
+        "dir_preprocessed": "preprocessed_data",
+        "dir_experiment_logs": "experiment_logs",
+        "path_fetalclip_config": "../FetalCLIP_config.json",
+        "path_fetalclip_weight": "../FetalCLIP_weights.pt"
+    },
+    "preprocessing": {
+        "image_size": 256,
+        "augmentation": {
+            "rotation_range": 20,
+            "shift_limit": 0.1,
+            "scale_limit": 0.1,
+            "elastic_transform": true,
+            "grid_distortion": true,
+            "optical_distortion": true,
+            "n_augmentations_train": 5
+        }
+    },
+    "model": {
+        "architecture": "U-Net",
+        "encoder": "FetalCLIP-ViT",
+        "encoder_frozen": true,
+        "decoder_channels": [
+            256,
+            128,
+            64,
+            32
+        ],
+        "use_skip_connections": true
+    },
+    "training": {
+        "batch_size": 8,
+        "epochs": 50,
+        "learning_rate": 0.0001,
+        "optimizer": "adam",
+        "loss": "dice_bce_combined",
+        "dice_weight": 0.9,
+        "bce_weight": 0.1,
+        "early_stopping_patience": 15,
+        "reduce_lr_patience": 10,
+        "train_val_split": 0.75
+    }
+}
